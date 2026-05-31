@@ -68,6 +68,7 @@ app:
     allowed-origins:
       - http://localhost:3000
       - http://localhost:5173
+      - https://videsol-web.vercel.app
 
 # OpenAPI / Swagger UI
 springdoc:
