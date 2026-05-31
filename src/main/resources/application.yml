@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: videsol-backend
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:videsol}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  cache:
+    type: caffeine
+    cache-names:
+      - pilotToken
+      - productosPorId
+      - productosPorCodigo
+      - preciosPorCodigo
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=30m
+
+  # Límite de tamaño para subida de imágenes
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+server:
+  port: 8080
+
+# Pilot API configuration
+pilot:
+  api:
+    base-url: https://api.pilotsolution.net
+    username: ${PILOT_USERNAME}
+    password: ${PILOT_PASSWORD}
+    token-ttl-minutes: 290
+    connect-timeout-ms: 5000
+    read-timeout-ms: 15000
+  lead:                                    # ← mismo nivel que api, no dentro
+    suborigin-code-okm: ${PILOT_SUBORIGIN_CODE_OKM}
+    suborigin-code-usado: ${PILOT_SUBORIGIN_CODE_USADO}
+
+    business-type-nuevo: convencional
+    business-type-usado: 8
+
+# AWS S3 configuration
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
+    bucket: ${AWS_S3_BUCKET}
+    region: ${AWS_S3_REGION:us-east-1}
+
+
+
+# CORS: which frontend origins are allowed
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:5173
+
+# OpenAPI / Swagger UI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+
+logging:
+  level:
+    com.videsol.backend: DEBUG
+    org.springframework.web.reactive.function.client: INFO
