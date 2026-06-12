@@ -9,6 +9,7 @@ import java.util.List;
  */
 public record VehiculoOkmDTO(
         Long id,
+        String slug,
         String code,           // referencia a Pilot
         String marca,          // viene de Pilot
         String modelo,         // viene de Pilot

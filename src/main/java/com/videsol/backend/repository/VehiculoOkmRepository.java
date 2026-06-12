@@ -17,6 +17,7 @@ public interface VehiculoOkmRepository extends JpaRepository<VehiculoOkm, Long>,
         JpaSpecificationExecutor<VehiculoOkm> {
 
     Optional<VehiculoOkm> findByCode(String code);
+    Optional<VehiculoOkm> findBySlug(String slug);
     boolean existsByCode(String code);
     List<VehiculoOkm> findByActivoTrue();
     Page<VehiculoOkm> findByActivoTrue(Pageable pageable);

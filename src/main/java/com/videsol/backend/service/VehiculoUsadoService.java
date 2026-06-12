@@ -31,6 +31,7 @@ public class VehiculoUsadoService {
 
     private final VehiculoUsadoRepository repository;
     private final PilotStockService stockService;
+    private final SlugService slugService;
 
     // ============== Público ==============
 
@@ -43,7 +44,9 @@ public class VehiculoUsadoService {
             String transmision,
             BigDecimal precioMax,
             Integer kmMax,
-            Integer anioMin) {
+            Integer anioMin,
+            String sort,
+            String order) {
 
         Specification<VehiculoUsado> spec = VehiculoUsadoSpec.activo();
 
@@ -59,6 +62,9 @@ public class VehiculoUsadoService {
             spec = spec.and(VehiculoUsadoSpec.kmMax(kmMax));
         if (anioMin != null)
             spec = spec.and(VehiculoUsadoSpec.anioMin(anioMin));
+        if (sort != null && !sort.isBlank()) {
+            spec = spec.and(VehiculoUsadoSpec.ordenarPor(sort, order));
+        }
 
         Page<VehiculoUsado> pagina = repository.findAll(spec, pageable);
 
@@ -100,6 +106,22 @@ public class VehiculoUsadoService {
                 pagina.getSize(),
                 pagina.isLast()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public VehiculoUsadoDTO obtenerPorSlug(String slug) {
+        VehiculoUsado v = repository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Vehículo no encontrado: " + slug));
+
+        if (!Boolean.TRUE.equals(v.getActivo())) {
+            throw new ResourceNotFoundException("Vehículo no disponible");
+        }
+
+        BigDecimal precio = obtenerPrecioSeguro(v.getPilotId());
+        boolean disponible = verificarDisponibilidad(v.getPilotId());
+
+        return toDTO(v, precio, disponible);
     }
 
     /**
@@ -259,6 +281,12 @@ public class VehiculoUsadoService {
         v.setPatenteMensual(req.patenteMensual());
         v.setPatenteAnual(req.patenteAnual());
         v.setDescripcion(req.descripcion());
+        // En aplicarCampos, solo al crear (si slug es null):
+        if (v.getSlug() == null) {
+            String slug = slugService.generarSlugUsado(
+                    req.marca(), req.modelo(), req.version(), req.anio());
+            v.setSlug(slug);
+        }
         // Solo sobreescribe si el request trae valor — nunca pisa con null
         // (precioRef es un campo interno de filtro de Pilot que el frontend no conoce)
         if (req.precioRef() != null) {
@@ -301,7 +329,7 @@ public class VehiculoUsadoService {
                                 .orElse(null));
 
         return new VehiculoUsadoDTO.VehiculoUsadoCardDTO(
-                v.getId(), v.getPilotId(), v.getMarca(), v.getModelo(), v.getVersion(),
+                v.getId(), v.getSlug(), v.getPilotId(), v.getMarca(), v.getModelo(), v.getVersion(),
                 v.getAnio(), v.getKm(), precio, v.getTipo(), v.getCombustible(),
                 v.getTransmision(), v.getColor(), v.getGarantia(), v.getFinanciacion(),
                 v.getUnicoDueno(), imagenPrincipal
@@ -341,7 +369,7 @@ public class VehiculoUsadoService {
 
 
         return new VehiculoUsadoDTO(
-                v.getId(), v.getPilotId(), v.getActivo(),
+                v.getId(), v.getSlug(), v.getPilotId(), v.getActivo(),
                 v.getMarca(), v.getModelo(), v.getVersion(),
                 v.getAnio(), v.getKm(), v.getCombustible(), v.getColor(),
                 precio, disponible,

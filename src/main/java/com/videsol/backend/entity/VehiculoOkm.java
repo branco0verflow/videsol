@@ -21,6 +21,9 @@ public class VehiculoOkm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 200)
+    private String slug;
+
     /** Código del producto en Pilot (ej: "RKWB02"). Único. */
     @Column(name = "code", nullable = false, length = 50, unique = true)
     private String code;

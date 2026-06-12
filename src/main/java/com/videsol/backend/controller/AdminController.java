@@ -37,6 +37,8 @@ public class AdminController {
     private final PilotStockService stockService;
     private final VehiculoOkmRepository okmRepository;
     private final VehiculoUsadoRepository usadoRepository;
+    private final VehiculoOkmService vehiculoOkmService;
+    private final VehiculoUsadoService vehiculoUsadoService;
 
     // ============== Sincronización / Pilot ==============
 
@@ -165,6 +167,12 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/okm/{id}")
+    @Operation(summary = "Obtener 0KM por ID (admin)")
+    public ResponseEntity<VehiculoOkmDTO> obtenerOkmAdmin(@PathVariable Long id) {
+        return ResponseEntity.ok(vehiculoOkmService.obtenerPorIdAdmin(id));
+    }
+
     // ============== Usados ==============
 
     @GetMapping("/usados")
@@ -234,5 +242,11 @@ public class AdminController {
                         ))
                         .collect(java.util.stream.Collectors.toList())
         );
+    }
+
+    @GetMapping("/usados/{id}")
+    @Operation(summary = "Obtener un usado por ID con detalle completo y precio fresco de Pilot")
+    public ResponseEntity<VehiculoUsadoDTO> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(vehiculoUsadoService.obtenerPorId(id));
     }
 }

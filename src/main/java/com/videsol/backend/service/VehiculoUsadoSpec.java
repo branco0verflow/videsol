@@ -47,4 +47,17 @@ public class VehiculoUsadoSpec {
         return (root, query, cb) ->
                 cb.greaterThanOrEqualTo(root.get("anio"), anioMin);
     }
+
+    // Ordenar por últimos ingresos y/o por precio < o >
+    public static Specification<VehiculoUsado> ordenarPor(String sort, String order) {
+        return (root, query, cb) -> {
+            boolean asc = !"desc".equalsIgnoreCase(order);
+            if ("reciente".equalsIgnoreCase(sort)) {
+                query.orderBy(asc ? cb.asc(root.get("id")) : cb.desc(root.get("id")));
+            } else if ("precio".equalsIgnoreCase(sort)) {
+                query.orderBy(asc ? cb.asc(root.get("precioRef")) : cb.desc(root.get("precioRef")));
+            }
+            return cb.conjunction();
+        };
+    }
 }

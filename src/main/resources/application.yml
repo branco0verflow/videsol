@@ -69,6 +69,14 @@ app:
       - http://localhost:3000
       - http://localhost:5173
       - https://videsol-web.vercel.app
+# JWT configuration
+  admin:
+    email: ${APP_ADMIN_EMAIL}
+    password: ${APP_ADMIN_PASSWORD}
+  jwt:
+    secret: ${JWT_SECRET:91307261-49117468-SECRET-SECURITY-EXTREME-1071}
+    expiration-hours: 8
+
 
 # OpenAPI / Swagger UI
 springdoc:

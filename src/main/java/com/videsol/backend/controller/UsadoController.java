@@ -32,12 +32,14 @@ public class UsadoController {
             @RequestParam(required = false) String transmision,
             @RequestParam(required = false) BigDecimal precioMax,
             @RequestParam(required = false) Integer kmMax,
-            @RequestParam(required = false) Integer anioMin) {
+            @RequestParam(required = false) Integer anioMin,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String order) {
 
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
                 service.listarActivosFiltrado(pageable, marca, tipo,
-                        combustible, transmision, precioMax, kmMax, anioMin)
+                        combustible, transmision, precioMax, kmMax, anioMin, sort, order)
         );
     }
 
@@ -45,5 +47,10 @@ public class UsadoController {
     @Operation(summary = "Obtener un usado por ID con detalle completo y precio fresco de Pilot")
     public ResponseEntity<VehiculoUsadoDTO> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(service.obtenerPorId(id));
+    }
+
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<VehiculoUsadoDTO> obtenerPorSlug(@PathVariable String slug) {
+        return ResponseEntity.ok(service.obtenerPorSlug(slug));
     }
 }

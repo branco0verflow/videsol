@@ -19,6 +19,7 @@ import java.util.List;
 public class AdminOkmService {
 
     private final VehiculoOkmRepository repository;
+    private final SlugService slugService;
     private final VehiculoOkmService vehiculoOkmService;
 
     @Transactional(readOnly = true)
@@ -39,6 +40,13 @@ public class AdminOkmService {
         }
         VehiculoOkm v = new VehiculoOkm();
         v.setCode(req.code());
+        String slug = slugService.generarSlugOkm(
+                req.marcaRef(),
+                null,   // modelo viene de Pilot, no del request
+                null,   // version viene de Pilot
+                req.anio()
+        );
+        v.setSlug(slug);
         aplicarCampos(v, req);
         VehiculoOkm guardado = repository.save(v);
         return vehiculoOkmService.obtenerPorIdAdmin(guardado.getId());

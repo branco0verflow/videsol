@@ -15,6 +15,7 @@ public interface VehiculoUsadoRepository extends JpaRepository<VehiculoUsado, Lo
         JpaSpecificationExecutor<VehiculoUsado> {
 
     Optional<VehiculoUsado> findByPilotId(String pilotId);
+    Optional<VehiculoUsado> findBySlug(String slug);
     boolean existsByPilotId(String pilotId);
     List<VehiculoUsado> findByActivoTrue();
     Page<VehiculoUsado> findByActivoTrue(Pageable pageable);

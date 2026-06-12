@@ -33,7 +33,18 @@ public class VehiculoOkmService {
 
     private final VehiculoOkmRepository repository;
     private final PilotPriceListService precioService;
+    private final SlugService slugService;
 
+    @Transactional(readOnly = true)
+    public VehiculoOkmDTO obtenerPorSlug(String slug) {
+        VehiculoOkm v = repository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Vehículo no encontrado: " + slug));
+        if (!Boolean.TRUE.equals(v.getActivo())) {
+            throw new ResourceNotFoundException("Vehículo no disponible");
+        }
+        return ensamblarConPrecio(v);
+    }
     /**
      * Lista todos los vehículos 0KM activos para la web pública.
      */
@@ -84,8 +95,17 @@ public class VehiculoOkmService {
         // Intentamos obtener el precio de Pilot. Si falla, devolvemos el vehículo igual.
         PrecioDTO precio = obtenerPrecioSeguro(v.getCode());
 
+        // Si no tiene slug todavía, generarlo con datos de Pilot
+        if (v.getSlug() == null && precio != null) {
+            String slug = slugService.generarSlugOkm(
+                    precio.marca(), precio.modelo(), precio.name(), v.getAnio());
+            v.setSlug(slug);
+            repository.save(v);
+        }
+
         return new VehiculoOkmDTO(
                 v.getId(),
+                v.getSlug(),
                 v.getCode(),
                 precio != null ? extraerMarca(precio) : null,
                 precio != null ? extraerModelo(precio) : null,
@@ -193,6 +213,7 @@ public class VehiculoOkmService {
 
         return new VehiculoOkmCardDTO(
                 v.getId(),
+                v.getSlug(),
                 v.getCode(),
                 precio != null ? precio.marca() : null,
                 precio != null ? precio.modelo() : null,
@@ -208,26 +229,6 @@ public class VehiculoOkmService {
         );
     }
 
-    /* Para paginar los vehículos en la web: (esto trae toda la data de los vehículos, sería mejor usar CardVehiculos para el catalogo)
-
-
-    @Transactional(readOnly = true)
-    public PaginaDTO<VehiculoOkmDTO> listarActivosPaginado(Pageable pageable) {
-        Page<VehiculoOkm> pagina = repository.findByActivoTrue(pageable);
-
-        List<VehiculoOkmDTO> contenido = pagina.getContent().stream()
-                .map(this::ensamblarConPrecio)
-                .collect(Collectors.toList());
-
-        return new PaginaDTO<>(
-                contenido,
-                pagina.getNumber(),
-                pagina.getTotalPages(),
-                pagina.getTotalElements(),
-                pagina.getSize(),
-                pagina.isLast()
-        );
-    }*/
 
 
     @Transactional(readOnly = true)
@@ -255,7 +256,9 @@ public class VehiculoOkmService {
             String tipo,
             String combustible,
             String transmision,
-            BigDecimal precioMax) {
+            BigDecimal precioMax,
+            String sort,
+            String order) {
 
         // Construimos el Specification dinámicamente
         org.springframework.data.jpa.domain.Specification<VehiculoOkm> spec =
@@ -271,6 +274,9 @@ public class VehiculoOkmService {
             spec = spec.and(VehiculoOkmSpec.transmision(transmision));
         if (precioMax != null)
             spec = spec.and(VehiculoOkmSpec.precioMax(precioMax));
+        if (sort != null && !sort.isBlank()) {
+            spec = spec.and(VehiculoOkmSpec.ordenarPor(sort, order));
+        }
 
         Page<VehiculoOkm> pagina = repository.findAll(spec, pageable);
 

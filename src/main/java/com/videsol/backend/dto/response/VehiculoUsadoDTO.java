@@ -9,6 +9,7 @@ import java.util.List;
  */
 public record VehiculoUsadoDTO(
         Long id,
+        String slug,
         String pilotId,
         Boolean activo,
 
@@ -63,6 +64,7 @@ public record VehiculoUsadoDTO(
      */
     public record VehiculoUsadoCardDTO(
             Long id,
+            String slug,
             String pilotId,
             String marca,
             String modelo,

@@ -31,11 +31,13 @@ public class OkmController {
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) String combustible,
             @RequestParam(required = false) String transmision,
-            @RequestParam(required = false) BigDecimal precioMax) {
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) String sort,    // NUEVO: para filtrar por precio de < o > y por último ingresos
+            @RequestParam(required = false) String order) {
 
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
-                service.listarActivosFiltrado(pageable, marca, tipo, combustible, transmision, precioMax)
+                service.listarActivosFiltrado(pageable, marca, tipo, combustible, transmision, precioMax, sort, order)
         );
     }
 
@@ -43,5 +45,11 @@ public class OkmController {
     @Operation(summary = "Obtener un vehículo 0KM por ID con detalle completo")
     public ResponseEntity<VehiculoOkmDTO> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(service.obtenerPorId(id));
+    }
+
+    @GetMapping("/slug/{slug}")
+    @Operation(summary = "Obtener vehículo 0KM por slug")
+    public ResponseEntity<VehiculoOkmDTO> obtenerPorSlug(@PathVariable String slug) {
+        return ResponseEntity.ok(service.obtenerPorSlug(slug));
     }
 }

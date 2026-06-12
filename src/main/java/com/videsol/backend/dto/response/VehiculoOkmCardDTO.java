@@ -8,6 +8,7 @@ import java.math.BigDecimal;
  */
 public record VehiculoOkmCardDTO(
         Long id,
+        String slug,
         String code,
         String marca,
         String modelo,

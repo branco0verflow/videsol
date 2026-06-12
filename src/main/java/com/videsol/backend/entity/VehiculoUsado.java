@@ -20,6 +20,9 @@ public class VehiculoUsado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 200)
+    private String slug;
+
     /**
      * GUID de Pilot: "8D4F123A-812A-434E-80EC-8849E91E4B7D"
      * Es el vínculo con Pilot. Único e inmutable.
