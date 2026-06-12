@@ -35,7 +35,6 @@ public class AuthController {
             cookie.setSecure(true); // true en producción (HTTPS) ofalse en desarrollo
             cookie.setPath("/");
             cookie.setMaxAge(8 * 3600); // 8 horas
-            response.addCookie(cookie);
 
             response.setHeader("Set-Cookie",
                     "admin_token=" + token +
@@ -63,7 +62,6 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0); // elimina la cookie
-        response.addCookie(cookie);
         response.setHeader("Set-Cookie",
                 "admin_token=" +
                         "; HttpOnly" +
