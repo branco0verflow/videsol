@@ -37,6 +37,15 @@ public class AuthController {
             cookie.setMaxAge(8 * 3600); // 8 horas
             response.addCookie(cookie);
 
+            response.setHeader("Set-Cookie",
+                    "admin_token=" + token +
+                            "; HttpOnly" +
+                            "; Secure" +
+                            "; Path=/" +
+                            "; Max-Age=" + (8 * 3600) +
+                            "; SameSite=None"             // ← clave para cross-origin en producción
+            );
+
             return ResponseEntity.ok(Map.of(
                     "ok", true,
                     "nombreAdmin", authService.obtenerNombre(body.get("email"))
@@ -55,6 +64,14 @@ public class AuthController {
         cookie.setPath("/");
         cookie.setMaxAge(0); // elimina la cookie
         response.addCookie(cookie);
+        response.setHeader("Set-Cookie",
+                "admin_token=" +
+                        "; HttpOnly" +
+                        "; Secure" +
+                        "; Path=/" +
+                        "; Max-Age=0" +
+                        "; SameSite=None"
+        );
         return ResponseEntity.noContent().build();
     }
 }

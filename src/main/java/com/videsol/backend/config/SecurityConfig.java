@@ -68,6 +68,7 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "https://videsol-web.vercel.app",
+                "https://videsol-web-v1.vercel.app",
                 "https://videsol.com",
                 "https://www.videsol.com"
         ));
