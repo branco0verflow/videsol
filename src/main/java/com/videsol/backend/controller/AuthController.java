@@ -32,7 +32,7 @@ public class AuthController {
             // Seteamos el token en cookie httpOnly
             Cookie cookie = new Cookie("admin_token", token);
             cookie.setHttpOnly(true);
-            cookie.setSecure(false); // true en producción (HTTPS)
+            cookie.setSecure(true); // true en producción (HTTPS) ofalse en desarrollo
             cookie.setPath("/");
             cookie.setMaxAge(8 * 3600); // 8 horas
             response.addCookie(cookie);
