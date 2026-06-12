@@ -2,11 +2,15 @@ package com.videsol.backend.controller;
 
 import com.videsol.backend.dto.pilot.PilotStockDTO;
 import com.videsol.backend.dto.pilot.PilotStockListResponse;
+import com.videsol.backend.dto.request.AdminRequest;
+import com.videsol.backend.dto.request.CambiarPasswordRequest;
 import com.videsol.backend.dto.request.VehiculoOkmRequest;
 import com.videsol.backend.dto.request.VehiculoUsadoRequest;
+import com.videsol.backend.dto.response.AdminDTO;
 import com.videsol.backend.dto.response.PendienteDTO;
 import com.videsol.backend.dto.response.VehiculoOkmDTO;
 import com.videsol.backend.dto.response.VehiculoUsadoDTO;
+import com.videsol.backend.entity.Administrador;
 import com.videsol.backend.repository.VehiculoOkmRepository;
 import com.videsol.backend.repository.VehiculoUsadoRepository;
 import com.videsol.backend.service.*;
@@ -39,6 +43,7 @@ public class AdminController {
     private final VehiculoUsadoRepository usadoRepository;
     private final VehiculoOkmService vehiculoOkmService;
     private final VehiculoUsadoService vehiculoUsadoService;
+    private final AdminAuthService authService;
 
     // ============== Sincronización / Pilot ==============
 
@@ -248,5 +253,50 @@ public class AdminController {
     @Operation(summary = "Obtener un usado por ID con detalle completo y precio fresco de Pilot")
     public ResponseEntity<VehiculoUsadoDTO> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(vehiculoUsadoService.obtenerPorId(id));
+    }
+
+
+    // ============== Gestión de admins (solo super admin) ==============
+
+    @GetMapping("/administradores")
+    @Operation(summary = "Listar todos los administradores")
+    public ResponseEntity<List<AdminDTO>> listarAdmins() {
+        return ResponseEntity.ok(authService.listarAdmins());
+    }
+
+    @PostMapping("/administradores")
+    @Operation(summary = "Crear nuevo administrador")
+    public ResponseEntity<AdminDTO> crearAdmin(
+            @Valid @RequestBody AdminRequest req) {
+        Administrador nuevo = authService.crearAdmin(
+                req.nombreAdmin(), req.email(), req.password(), req.rolSuper());
+        return ResponseEntity.ok(new AdminDTO(
+                nuevo.getId(), nuevo.getNombreAdmin(),
+                nuevo.getEmail(), nuevo.getRolSuper(), nuevo.getActivo()));
+    }
+
+    @PutMapping("/administradores/{id}")
+    @Operation(summary = "Editar administrador")
+    public ResponseEntity<AdminDTO> editarAdmin(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminRequest req) {
+        return ResponseEntity.ok(authService.editarAdmin(
+                id, req.nombreAdmin(), req.email(), req.rolSuper(), true));
+    }
+
+    @PatchMapping("/administradores/{id}/password")
+    @Operation(summary = "Cambiar contraseña de un administrador")
+    public ResponseEntity<Void> cambiarPassword(
+            @PathVariable Long id,
+            @RequestBody CambiarPasswordRequest req) {
+        authService.cambiarPassword(id, req.passwordNueva());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/administradores/{id}")
+    @Operation(summary = "Eliminar administrador")
+    public ResponseEntity<Void> eliminarAdmin(@PathVariable Long id) {
+        authService.eliminarAdmin(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate # Cambio to validate en prod o update en desarrollo
     show-sql: false
     properties:
       hibernate:
@@ -69,12 +69,16 @@ app:
       - http://localhost:3000
       - http://localhost:5173
       - https://videsol-web.vercel.app
-# JWT configuration
+      - https://videsol.com
+      - https://www.videsol.com
+      - https://videsol-web-v1.vercel.app
+
+  # JWT configuration
   admin:
     email: ${APP_ADMIN_EMAIL}
     password: ${APP_ADMIN_PASSWORD}
   jwt:
-    secret: ${JWT_SECRET:91307261-49117468-SECRET-SECURITY-EXTREME-1071}
+    secret: ${JWT_SECRET}
     expiration-hours: 8
 
 
@@ -82,7 +86,9 @@ app:
 springdoc:
   api-docs:
     path: /v3/api-docs
+    enabled: ${SWAGGER_ENABLED:false}
   swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
     path: /swagger-ui.html
     operations-sorter: alpha
 

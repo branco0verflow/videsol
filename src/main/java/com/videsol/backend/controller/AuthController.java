@@ -30,11 +30,11 @@ public class AuthController {
             );
 
             // Seteamos el token en cookie httpOnly
-            Cookie cookie = new Cookie("admin_token", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true); // true en producción (HTTPS) ofalse en desarrollo
-            cookie.setPath("/");
-            cookie.setMaxAge(8 * 3600); // 8 horas
+            // Cookie cookie = new Cookie("admin_token", token);
+            // cookie.setHttpOnly(true);
+            //cookie.setSecure(true); // true en producción (HTTPS) ofalse en desarrollo
+            //cookie.setPath("/");
+            //cookie.setMaxAge(8 * 3600); // 8 horas
 
             response.setHeader("Set-Cookie",
                     "admin_token=" + token +
@@ -42,7 +42,7 @@ public class AuthController {
                             "; Secure" +
                             "; Path=/" +
                             "; Max-Age=" + (8 * 3600) +
-                            "; SameSite=None"             // ← clave para cross-origin en producción
+                            "; SameSite=None"             // clave para cross-origin en producción
             );
 
             return ResponseEntity.ok(Map.of(

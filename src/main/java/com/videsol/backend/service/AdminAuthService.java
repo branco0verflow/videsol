@@ -1,5 +1,6 @@
 package com.videsol.backend.service;
 
+import com.videsol.backend.dto.response.AdminDTO;
 import com.videsol.backend.entity.Administrador;
 import com.videsol.backend.exception.ResourceNotFoundException;
 import com.videsol.backend.repository.AdministradorRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -83,5 +85,50 @@ public class AdminAuthService {
         return repository.findByEmail(email)
                 .map(Administrador::getNombreAdmin)
                 .orElse("");
+    }
+
+    //Métodos para super admin ================================
+
+    public List<AdminDTO> listarAdmins() {
+        return repository.findAll().stream()
+                .map(a -> new AdminDTO(
+                        a.getId(), a.getNombreAdmin(),
+                        a.getEmail(), a.getRolSuper(), a.getActivo()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional
+    public AdminDTO editarAdmin(Long id, String nombreAdmin,
+                                String email, boolean rolSuper, boolean activo) {
+        Administrador a = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Admin con id " + id + " no encontrado"));
+        a.setNombreAdmin(nombreAdmin);
+        a.setEmail(email);
+        a.setRolSuper(rolSuper);
+        a.setActivo(activo);
+        repository.save(a);
+        return new AdminDTO(a.getId(), a.getNombreAdmin(),
+                a.getEmail(), a.getRolSuper(), a.getActivo());
+    }
+
+    @Transactional
+    public void eliminarAdmin(Long id) {
+        if (repository.count() <= 1) {
+            throw new IllegalStateException(
+                    "No podés eliminar el único administrador");
+        }
+        repository.deleteById(id);
+    }
+
+    @Transactional
+    public void cambiarPassword(Long id, String passwordNueva) {
+        Administrador a = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Admin con id " + id + " no encontrado"));
+        a.setPasswordHash(passwordEncoder.encode(passwordNueva));
+        a.setIntentosFallidos(0);
+        a.setBloqueadoHasta(null);
+        repository.save(a);
     }
 }
