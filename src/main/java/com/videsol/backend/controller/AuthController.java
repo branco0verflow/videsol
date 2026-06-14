@@ -47,7 +47,8 @@ public class AuthController {
 
             return ResponseEntity.ok(Map.of(
                     "ok", true,
-                    "nombreAdmin", authService.obtenerNombre(body.get("email"))
+                    "nombreAdmin", authService.obtenerNombre(body.get("email")),
+                    "rolSuper", authService.esRolSuper(body.get("email"))
             ));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(423).body(Map.of("error", e.getMessage()));

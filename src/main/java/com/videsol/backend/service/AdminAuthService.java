@@ -131,4 +131,10 @@ public class AdminAuthService {
         a.setBloqueadoHasta(null);
         repository.save(a);
     }
+
+    public boolean esRolSuper(String email) {
+        return repository.findByEmail(email)
+                .map(Administrador::getRolSuper)
+                .orElse(false);
+    }
 }
